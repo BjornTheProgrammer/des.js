@@ -1,23 +1,23 @@
 'use strict';
 
-var assert = require('assert');
-var crypto = require('crypto');
-var Buffer = require('buffer').Buffer;
+const assert = require('assert');
+const crypto = require('crypto');
+const Buffer = require('buffer').Buffer;
 
-var des = require('../');
+const des = require('../');
 
-var fixtures = require('./fixtures');
-var bin = fixtures.bin;
+const fixtures = require('./fixtures');
+let bin = fixtures.bin;
 
 describe('DES', function() {
   describe('Key Derivation', function() {
     it('should derive proper keys', function() {
-      var d = des.DES.create({
+      let d = des.DES.create({
         type: 'encrypt',
         key: [ 0x13, 0x34, 0x57, 0x79, 0x9B, 0xBC, 0xDF, 0xF1 ]
       });
 
-      var expected = [
+      let expected = [
         '000110 110000 001011 101111',
         '111111 000111 000001 110010',
         '011110 011010 111011 011001',
@@ -58,7 +58,7 @@ describe('DES', function() {
   });
 
   describe('encryption/decryption', function() {
-    var vectors = [
+    let vectors = [
       {
         key: '133457799bbcdff1',
         input: '0123456789abcdef'
@@ -84,51 +84,54 @@ describe('DES', function() {
 
     vectors.forEach(function(vec, i) {
       it('should encrypt vector ' + i, function() {
-        var key = Buffer.from(vec.key, 'hex');
-        var input = Buffer.from(vec.input, 'hex');
+        let key = Buffer.from(vec.key, 'hex');
+        let input = Buffer.from(vec.input, 'hex');
 
-        var enc = des.DES.create({
+        let enc = des.DES.create({
           type: 'encrypt',
           key: key
         });
-        var dec = des.DES.create({
+
+        let dec = des.DES.create({
           type: 'decrypt',
           key: key
         });
-        var out = Buffer.from(enc.update(input).concat(enc.final()));
 
-        var cipher = crypto.createCipheriv('des-ecb', key, Buffer.alloc(0));
-        var expected = Buffer.concat([ cipher.update(input), cipher.final() ]);
+        let out = Buffer.from(enc.update(input).concat(enc.final()));
+
+        let cipher = crypto.createCipheriv('des-ecb', key, Buffer.alloc(0));
+        let expected = Buffer.concat([ cipher.update(input), cipher.final() ]);
 
         assert.deepEqual(out, expected);
-
         assert.deepEqual(Buffer.from(dec.update(out).concat(dec.final())),
                          input);
       });
     });
 
     it('should buffer during encryption/decryption', function() {
-      var key = Buffer.from('0102030405060708', 'hex');
-      var chunk = Buffer.from('01020304050607', 'hex');
-      var count = 257;
-      var expected = Buffer.from(
+      let key = Buffer.from('0102030405060708', 'hex');
+      let chunk = Buffer.from('01020304050607', 'hex');
+      let count = 257;
+      let expected = Buffer.from(
           new Array(count + 1).join('01020304050607'), 'hex');
 
-      var enc = des.DES.create({
+      let enc = des.DES.create({
         type: 'encrypt',
         key: key
       });
-      var cipher = [];
-      for (var i = 0; i < count; i++)
+      let cipher = [];
+      for (let i = 0; i < count; i++)
         cipher = cipher.concat(enc.update(chunk));
       cipher = cipher.concat(enc.final());
 
-      var dec = des.DES.create({
+      let dec = des.DES.create({
         type: 'decrypt',
         key: key
       });
-      var out = [];
-      for (var i = 0; i < count; i++)
+      let out = [];
+
+      let i = 0;
+      for (i; i < count; i++)
         out = out.concat(dec.update(cipher.slice(i * 7, (i + 1) * 7)));
       out = out.concat(dec.final(cipher.slice(i * 7)));
 

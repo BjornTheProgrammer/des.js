@@ -1,19 +1,19 @@
 'use strict';
 
-var assert = require('assert');
-var crypto = require('crypto');
-var Buffer = require('buffer').Buffer;
+const assert = require('assert');
+const crypto = require('crypto');
+const Buffer = require('buffer').Buffer;
 
-var des = require('../');
+const des = require('../');
 
-var fixtures = require('./fixtures');
-var bin = fixtures.bin;
+const fixtures = require('./fixtures');
+let bin = fixtures.bin;
 
 describe('DES-EDE-CBC', function() {
-  var CBC = des.CBC.instantiate(des.EDE);
+  let CBC = des.CBC.instantiate(des.EDE);
 
   describe('encryption/decryption', function() {
-    var vectors = [
+    let vectors = [
       {
         key: new Array(4).join('133457799bbcdff1'),
         iv: '0102030405060708',
@@ -44,23 +44,23 @@ describe('DES-EDE-CBC', function() {
 
      vectors.forEach(function(vec, i) {
       it('should encrypt vector ' + i, function() {
-        var key = Buffer.from(vec.key, 'hex');
-        var iv = Buffer.from(vec.iv, 'hex');
-        var input = Buffer.from(vec.input, 'hex');
+        let key = Buffer.from(vec.key, 'hex');
+        let iv = Buffer.from(vec.iv, 'hex');
+        let input = Buffer.from(vec.input, 'hex');
 
-        var enc = CBC.create({
+        let enc = CBC.create({
           type: 'encrypt',
           key: key,
           iv: iv
         });
-        var out = Buffer.from(enc.update(input).concat(enc.final()));
+        let out = Buffer.from(enc.update(input).concat(enc.final()));
 
-        var cipher = crypto.createCipheriv('des-ede3-cbc', key, iv);
-        var expected = Buffer.concat([ cipher.update(input), cipher.final() ]);
+        let cipher = crypto.createCipheriv('des-ede3-cbc', key, iv);
+        let expected = Buffer.concat([ cipher.update(input), cipher.final() ]);
 
         assert.deepEqual(out, expected);
 
-        var dec = CBC.create({
+        let dec = CBC.create({
           type: 'decrypt',
           key: key,
           iv: iv
@@ -71,31 +71,31 @@ describe('DES-EDE-CBC', function() {
     });
     vectors.forEach(function(vec, i) {
       it('should decrypt without unpadding vector ' + i, function() {
-        var key = Buffer.from(vec.key, 'hex');
-        var iv = Buffer.from(vec.iv, 'hex');
-        var input = Buffer.from(vec.input, 'hex');
+        let key = Buffer.from(vec.key, 'hex');
+        let iv = Buffer.from(vec.iv, 'hex');
+        let input = Buffer.from(vec.input, 'hex');
 
-        var enc = CBC.create({
+        let enc = CBC.create({
           type: 'encrypt',
           key: key,
           iv: iv,
         });
 
-        var out = Buffer.from(enc.update(input).concat(enc.final()));
+        let out = Buffer.from(enc.update(input).concat(enc.final()));
 
-        var cipher = crypto.createCipheriv('des-ede3-cbc', key, iv);
-        var expected = Buffer.concat([ cipher.update(input), cipher.final() ]);
+        let cipher = crypto.createCipheriv('des-ede3-cbc', key, iv);
+        let expected = Buffer.concat([ cipher.update(input), cipher.final() ]);
 
         assert.deepEqual(out, expected);
 
-        var dec = CBC.create({
+        let dec = CBC.create({
           type: 'decrypt',
           key: key,
           iv: iv,
           padding: false
         });
 
-        var decipher = crypto.createDecipheriv('des-ede3-cbc', key, iv);
+        let decipher = crypto.createDecipheriv('des-ede3-cbc', key, iv);
         decipher.setAutoPadding(false);
         expected = Buffer.concat([ decipher.update(out), decipher.final() ]);
         assert.deepEqual(Buffer.from(dec.update(out).concat(dec.final())),
